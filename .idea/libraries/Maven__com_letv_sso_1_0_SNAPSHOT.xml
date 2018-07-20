@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.letv:sso:1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/letv/sso/1.0-SNAPSHOT/sso-1.0-20151112.083323-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/letv/sso/1.0-SNAPSHOT/sso-1.0-20151112.083323-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/letv/sso/1.0-SNAPSHOT/sso-1.0-20151112.083323-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
