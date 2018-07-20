@@ -1,7 +1,6 @@
 # woodpecker
     包含日常日志收集的server端，和日志相关展现和告警配置的控制台。
-    [日志报警的客户端](https://github.com/guoyang1982/woodpecker-client)
-
+   [日志报警的客户端](https://github.com/guoyang1982/woodpecker-client)
 # 框架图
 
 ![Aaron Swartz](https://github.com/guoyang1982/woodpecker/blob/master/doc/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E5%9B%BE.jpg)
@@ -18,7 +17,7 @@
     mvn clean insall
 ## 3.快速安装redis集群
     如果想快速在本机搭建验证整个系统，可以按照如下方式快速搭建redis集群
-    [传送门](https://github.com/guoyang1982/docker-redis-cluster)
+   [传送门](https://github.com/guoyang1982/docker-redis-cluster)
 
 ## 4.快速安装mongodb
    ### 拉取mongo镜像:
