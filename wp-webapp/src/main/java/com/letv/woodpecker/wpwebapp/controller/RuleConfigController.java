@@ -1,6 +1,7 @@
 package com.letv.woodpecker.wpwebapp.controller;
 
 import com.letv.woodpecker.wpwebapp.entity.AppInfo;
+import com.letv.woodpecker.wpwebapp.itf.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.letv.woodpecker.wpdatamodel.model.RuleConfig;
@@ -12,7 +13,6 @@ import com.letv.woodpecker.wpwebapp.constants.RoleIds;
 import com.letv.woodpecker.wpwebapp.entity.UserApp;
 import com.letv.woodpecker.wpwebapp.itf.ApplicationService;
 import com.letv.woodpecker.wpwebapp.itf.UserAppService;
-import com.letv.woodpecker.wpwebapp.itf.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.MultiValueMap;

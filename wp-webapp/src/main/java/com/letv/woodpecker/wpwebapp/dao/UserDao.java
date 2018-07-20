@@ -74,4 +74,7 @@ public interface UserDao {
      */
     @SQL("delete from #table where login_name=:1")
     void deleteByLoginName(String loginName);
+
+    @SQL("update #table set user_role=:userRole where login_name=:loginName")
+    void updateUserStatus(User user);
 }

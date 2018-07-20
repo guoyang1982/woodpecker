@@ -1,8 +1,8 @@
 /**
  * Created by wangruifeng on 14-5-12.
  */
-define(["./user_new","./user_edit","../common/confirm"],
-    function (UserNew, UserEdit, Confirm) {
+define(["./user_new","./user_edit","./user_change_status","../common/confirm"],
+    function (UserNew, UserEdit, UserChangeStatus, Confirm) {
 
         function User(options) {
             this.init(options);
@@ -13,6 +13,7 @@ define(["./user_new","./user_edit","../common/confirm"],
                 this.options = options;
                 this.user_new = new UserNew({host: this.options.host});
                 this.user_edit = new UserEdit({host: this.options.host});
+                this.user_change_status = new UserChangeStatus({host: this.options.host});
                 this.confirm = new Confirm();
             },
             setOptions: function (options) {
@@ -35,6 +36,14 @@ define(["./user_new","./user_edit","../common/confirm"],
                 $("#table_user tbody").off("click.op_user_edit").on("click.op_user_edit","a[data-sign=op_user_edit]", function(){
                     var $op_product = $(this).closest("span[data-sign=op_user]");
                     that.opEdit({
+                        id: $op_product.data("id"),
+                        name: $op_product.data("name")
+                    });
+                });
+
+                $("#table_user tbody").off("click.op_user_change_status").on("click.op_user_change_status","a[data-sign=op_user_change_status]", function(){
+                    var $op_product = $(this).closest("span[data-sign=op_user]");
+                    that.opChangeStatus({
                         id: $op_product.data("id"),
                         name: $op_product.data("name")
                     });
@@ -81,7 +90,8 @@ define(["./user_new","./user_edit","../common/confirm"],
                                     id: obj.aData.loginName,
                                     name: obj.aData.roleName,
                                     ops: [
-                                        {color: "blue", sign: "op_user_edit", id: "", btnName: "修改"},
+                                        {color: "blue", sign: "op_user_edit", id: "", btnName: "修改密码"},
+                                        {color: "yellow", sign: "op_user_change_status", id: "", btnName: "变更权限"},
                                         {color: "red", sign: "op_user_del", id: "",  btnName: "删除"}
                                     ]
                                 });
@@ -137,6 +147,16 @@ define(["./user_new","./user_edit","../common/confirm"],
                     }
                 });
                 this.user_edit.show();
+            },
+            opChangeStatus: function (data) {
+                var that=this;
+                this.user_change_status.setOptions({
+                    id: data.id,
+                    callback_btnSave: function () {
+                        that.show();
+                    }
+                });
+                this.user_change_status.show();
             }
         };
         return User;

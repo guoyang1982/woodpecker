@@ -18,21 +18,21 @@
                     <input type="text" name="loginName" class="span6 m-wrap" value="${userInfo.loginName}" readonly="readonly" />
                 </div>
             </div>
-            <div class="control-group">
+            <div class="control-group" style="display: none">
                 <label class="control-label">登录密码<span class="required">*</span></label>
                 <div class="controls">
-                    <input type="password" name="password" class="span6 m-wrap" value=""/>
+                    <input type="password" name="password" class="span6 m-wrap" value="${userInfo.password}" readonly="readonly"/>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label">用户身份<span class="required">*</span></label>
                 <div class="controls">
-                    <input type="text" name="userRole" class="span6 m-wrap" value="${userInfo.userRole}" readonly="readonly"/> <a><font color="red">1:超级管理员 3:普通用户, 默认是普通用户</font></a>
+                    <input type="text" name="userRole" class="span6 m-wrap" value="${userInfo.userRole}"/> <a><font color="red">1:超级管理员 3:普通用户, 默认是普通用户</font></a>
                 </div>
             </div>
             <div class="form-actions">
-                <button id="btn_user_edit_save" type="button" class="btn green">保存</button>
-                <button id="btn_user_edit_back" type="button" class="btn">返回</button>
+                <button id="btn_user_change_status_save" type="button" class="btn green">保存</button>
+                <button id="btn_user_change_status_back" type="button" class="btn">返回</button>
             </div>
         </form>
         <!-- END FORM-->

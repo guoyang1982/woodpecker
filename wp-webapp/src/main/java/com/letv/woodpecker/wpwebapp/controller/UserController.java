@@ -7,6 +7,7 @@ import com.letv.woodpecker.wpwebapp.itf.UserService;
 import com.letv.woodpecker.wpwebapp.utils.Pagination;
 import com.letv.woodpecker.wpwebapp.vo.UserVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
@@ -88,12 +89,23 @@ public class UserController extends BaseController{
     public void editUser(@Validated User user, HttpServletResponse response){
         ResultBean result = new ResultBean(0, "success");
         try{
-            user.setSalt(UUID.randomUUID().toString());
-            user.setPassword(passwordHash.toHex(user.getPassword(),user.getSalt()));
-            userService.update(user);
+            User temp = userService.queryByLoginName(user.getLoginName());
+            //加密密码密码未变更，只更新用户状态
+            if(StringUtils.isBlank(user.getPassword())){
+                throw new RuntimeException("密码不能为空!");
+            }
+            if(user.getPassword().equals(temp.getPassword())){
+                temp.setUserRole(user.getUserRole());
+                userService.updateUserStatus(temp);
+            }else {
+                temp.setSalt(UUID.randomUUID().toString());
+                temp.setPassword(passwordHash.toHex(user.getPassword(),temp.getSalt()));
+                userService.update(temp);
+            }
+
         }catch (Exception e){
             result.setCode(1);
-            result.setMessage("failed!");
+            result.setMessage(e.getMessage());
         }
         printJSON(response, result);
     }
@@ -102,10 +114,18 @@ public class UserController extends BaseController{
     public ModelAndView queryByLoginName(@PathVariable String loginName, HttpServletResponse response){
         ModelAndView modelAndView = new ModelAndView();
         try{
+            String[] parameters = loginName.split("_");
+            loginName = parameters[0];
+            Integer flag = Integer.valueOf(parameters[1]);
             User user = userService.queryByLoginName(loginName);
             modelAndView.addObject("userInfo",user);
-            modelAndView.setViewName("user/user_edit");
+            if(flag == 0){
+                modelAndView.setViewName("user/user_edit");
+            }else {
+                modelAndView.setViewName("user/user_change_status");
+            }
         }catch (Exception e){
+            log.error(e.toString());
         }
         return modelAndView;
     }

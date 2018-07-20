@@ -47,4 +47,9 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(String loginName) {
         userDao.deleteByLoginName(loginName);
     }
+
+    @Override
+    public void updateUserStatus(User user) {
+        userDao.updateUserStatus(user);
+    }
 }

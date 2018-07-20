@@ -3,11 +3,11 @@
  */
 define(function(){
 
-    function UserNew(options){
+    function UserChangeStatus(options){
         this.init(options);
     }
 
-    UserNew.prototype = {
+    UserChangeStatus.prototype = {
         init: function (options) {
             this.options = options;
         },
@@ -23,11 +23,11 @@ define(function(){
         initEvents: function () {
             var that = this;
             // 保存
-            $("#div_user_edit").off("click.user_edit_save").on("click.user_edit_save", "#btn_user_edit_save", function () {
+            $("#div_user_edit").off("click.user_change_status_save").on("click.user_change_status_save", "#btn_user_change_status_save", function () {
                 that.btnSave();
             });
             // 返回
-            $("#div_user_edit").off("click.user_edit_back").on("click.user_edit_back", "#btn_user_edit_back", function () {
+            $("#div_user_edit").off("click.user_change_status_back").on("click.user_change_status_back", "#btn_user_change_status_back", function () {
                 that.btnBack();
             });
 
@@ -35,7 +35,7 @@ define(function(){
         loadContent: function () {
             // 将页面中form_temp部分的内容加载到容器中
             var id = this.options.id;
-            var url = this.options.host + "/woodpecker/user/queryUser/" + id +'_0';
+            var url = this.options.host + "/woodpecker/user/queryUser/" + id + '_1';
             var params = {};
             var that = this;
             $("#div_user_edit").empty();
@@ -56,14 +56,14 @@ define(function(){
         },
         btnSave: function () {
             var that = this;
-            $("#btn_user_save_new").attr("disabled", true);
+            $("#btn_user_change_status_save").attr("disabled", true);
             // 保存请求
             $.ajax({
                 url: "/woodpecker/user/editUser",
                 type: "post",
                 data: this.getFormData(),
                 success: function (data) {
-                    $("#btn_user_edit_save").attr("disabled", false);
+                    $("#btn_user_change_status_save").attr("disabled", false);
                     if (data.code === 0) {
                         $.gritter.add({title: "提示信息：", text: "保存成功！", time: 1000});
                         if ($.isFunction(that.options.callback_btnSave)) {
@@ -83,6 +83,6 @@ define(function(){
             }
         }
     };
-    return UserNew ;
+    return UserChangeStatus ;
 
 });

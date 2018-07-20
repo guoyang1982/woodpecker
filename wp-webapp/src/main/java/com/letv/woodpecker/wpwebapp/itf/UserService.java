@@ -52,4 +52,10 @@ public interface UserService {
      * @param loginName     登录名
      */
     void deleteUser(String loginName);
+
+    /**
+     * 更新用户状态
+     * @param user          用户信息
+     */
+    void updateUserStatus(User user);
 }
