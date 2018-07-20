@@ -1,6 +1,16 @@
 # woodpecker
     包含日志收集的server端，和日志相关展现和告警配置的web端。
    [日志报警的客户端](https://github.com/guoyang1982/woodpecker-client)
+   按照链接里的步骤使用客户端后，应用里的log的日志输出就都能收集到，默认是error级别的日志。如：
+   ```java
+      try {
+         return HttpUtils.get(url, null, params, TIME_OUT);
+       } catch (Exception e) {
+         logger.error("call url fail!e={}", e);
+         return "";
+       }
+   ```
+   
 # 框架图
 
 ![Aaron Swartz](https://github.com/guoyang1982/woodpecker/blob/master/doc/%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6%E5%9B%BE.jpg)
