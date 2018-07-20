@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+						http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.letv</groupId>
+	<artifactId>woodpecker</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>woodpecker</name>
+	<description>woodpecker for java </description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.2.RELEASE</version>
+	</parent>
+
+
+	<modules>
+		<module>wp-data-model</module>
+		<module>wp-server</module>
+		<module>wp-webapp</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.7</java.version>
+	</properties>
+
+	<dependencies>
+
+		<!--public dependencies-->
+
+		<!--aop-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-data-redis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.8.1.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.35</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+	</dependencies>
+
+
+	<!--
+		我们不应该给 parent 项目添加 spring-boot-maven-plugin 构建插件，
+		而应该给终端项目使用，因为这个插件的 repackage 目标会处理 jar 包，导致依赖它的模块无法使用它。
+		在 parent 项目中使用它会导致每个子项目都执行了该目标，进而出现编译失败。
+	-->
+
+
+	<repositories>
+		<repository>
+			<id>letv.public</id>
+			<name>Letv.com Repository</name>
+			<url>http://maven.letv.cn/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+
+	<!--<pluginRepositories>-->
+		<!--<pluginRepository>-->
+			<!--<id>jboss-public-repository-group</id>-->
+			<!--<name>JBoss Public Repository Group</name>-->
+			<!--<url>http://repository.jboss.org/nexus/content/groups/public/</url>-->
+			<!--<releases>-->
+				<!--<enabled>true</enabled>-->
+			<!--</releases>-->
+			<!--<snapshots>-->
+				<!--<enabled>true</enabled>-->
+			<!--</snapshots>-->
+		<!--</pluginRepository>-->
+	<!--</pluginRepositories>-->
+
+	<!--<distributionManagement>-->
+		<!--<repository>-->
+			<!--<id>project-release</id>-->
+			<!--<name>Projects Release repository</name>-->
+			<!--<url>http://maven.letv.cn/nexus/content/repositories/releases/</url>-->
+		<!--</repository>-->
+		<!--<snapshotRepository>-->
+			<!--<id>project-snapshots</id>-->
+			<!--<name>Projects SnapShot repository</name>-->
+			<!--<url>http://maven.letv.cn/nexus/content/repositories/snapshots/</url>-->
+		<!--</snapshotRepository>-->
+	<!--</distributionManagement>-->
+
+
+</project>

@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    <context:component-scan base-package="com.letv.woodpecker" />
+    <import resource="classpath:/spring/redis-cluster.xml"/>
+
+    <bean id="logbackFacility" class="com.letv.woodpecker.log.impl.LogbackFacility" init-method="init" >
+        <property name="appName" value="lms"></property>
+    </bean>
+    <!--<bean id="log4jFacility" class="com.letv.woodpecker.log.impl.Log4jFacility" init-method="init" >-->
+        <!--<property name="appName" value="lms"></property>-->
+    <!--</bean>-->
+   <bean id="redisQueueListener" class="com.letv.woodpecker.wpserver.redis.impl.RedisQueueListener"/>
+
+    <bean id="redisQueue" class="com.letv.woodpecker.wpserver.redis.RedisQueue" destroy-method="destroy">
+        <property name="redisTemplate" ref="jedisTemplate"/>
+        <property name="key" value="user:queue"/>
+        <property name="listener" ref="redisQueueListener"/>
+    </bean>
+</beans>
