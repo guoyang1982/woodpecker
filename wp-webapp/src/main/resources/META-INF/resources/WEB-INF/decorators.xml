@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/WEB-INF/layouts/">
+	<excludes>
+		<pattern>/static/*</pattern>
+        <pattern>/login</pattern>
+        <pattern>/*/page/*</pattern>
+		<!--<pattern>/cxf/*</pattern>-->
+		<!--<pattern>/api/*</pattern>-->
+	</excludes>
+	
+	<decorator name="default" page="default.jsp">
+		<pattern>/*</pattern>
+	</decorator>
+    <decorator name="upgrade" page="upgrade.jsp">
+        <pattern>/upgrade/*</pattern>
+    </decorator>
+    <decorator name="stat" page="stat.jsp">
+        <pattern>/stat/*</pattern>
+    </decorator>
+</decorators>
