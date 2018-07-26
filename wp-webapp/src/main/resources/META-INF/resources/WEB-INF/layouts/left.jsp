@@ -200,6 +200,24 @@
         </li>
 
         <li class="navFir">
+            <h2>实时异常统计</h2>
+            <ul class="navTwo">
+                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/exception/realExceptionPerMinute">Minute级实时异常统计
+                    <span class="selected"></span>
+                </a>
+                </li>
+                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/exception/realExceptionPerHour">Hour级实时异常统计
+                    <span class="selected"></span>
+                </a>
+                </li>
+                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/exception/realExceptionPerDay">Day级实时异常统计
+                    <span class="selected"></span>
+                </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="navFir">
             <h2>异常报表</h2>
             <ul class="navTwo">
                 <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/exception/toExceptionChartsPage">应用异常总报表

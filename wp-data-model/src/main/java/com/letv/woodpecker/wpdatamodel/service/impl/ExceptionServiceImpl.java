@@ -21,7 +21,7 @@ public class ExceptionServiceImpl implements ExceptionService {
     private AppInfoDao appInfoDao;
 
     @Override
-    public List<ExceptionInfo> queryAllExceptions(String userId, String appName, String startTime, String endTime, int pageStart, int pageSize,List<String> appNames) {
+    public List<ExceptionInfo> queryAllExceptions(String userId, String appName, String startTime, String endTime, int pageStart, int pageSize, List<String> appNames) {
         return exceptionInfoDao.queryAllExceptions(appNames,appName,startTime,endTime,pageStart,pageSize);
     }
 
@@ -31,9 +31,11 @@ public class ExceptionServiceImpl implements ExceptionService {
     }
 
     @Override
-    public List<ExceptionInfo> queryList(String appName, String exceptionType,String contentMd5, String startTime, String endTime, int pageStart, int pageSize) {
+    public List<ExceptionInfo> queryList(String appName, String exceptionType, String contentMd5, String startTime, String endTime, int pageStart, int pageSize) {
         return exceptionInfoDao.queryPageByDetail(appName,exceptionType,contentMd5,startTime,endTime,pageStart,pageSize);
     }
+
+
 
     @Override
     public List queryListByScheduler(String userId,String appName, String startTime, String endTime, List<String> appNames) {

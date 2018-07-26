@@ -1,22 +1,22 @@
 package com.letv.woodpecker.wpserver.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.letv.woodpecker.wpdatamodel.model.RuleConfig;
-import com.letv.woodpecker.wpdatamodel.service.RuleConfigService;
-import com.letv.woodpecker.wpserver.message.MessageBean;
-import com.letv.woodpecker.wpserver.service.ConsumeServer;
-import com.letv.woodpecker.wpserver.utils.*;
 import com.letv.woodpecker.wpdatamodel.dao.AlarmConfigDao;
 import com.letv.woodpecker.wpdatamodel.dao.AlarmHistoryDao;
 import com.letv.woodpecker.wpdatamodel.dao.ExceptionInfoDao;
 import com.letv.woodpecker.wpdatamodel.model.AlarmConfig;
 import com.letv.woodpecker.wpdatamodel.model.AlarmHistory;
 import com.letv.woodpecker.wpdatamodel.model.ExceptionInfo;
+import com.letv.woodpecker.wpdatamodel.model.RuleConfig;
+import com.letv.woodpecker.wpdatamodel.service.RuleConfigService;
+import com.letv.woodpecker.wpserver.message.MessageBean;
+import com.letv.woodpecker.wpserver.service.ConsumeServer;
+import com.letv.woodpecker.wpserver.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -104,7 +104,6 @@ public class ConsumeServerImpl implements ConsumeServer {
      */
     @Override
     public ExceptionInfo parseExceptionInfo(MessageBean exceptionInfo) {
-        // JSONObject jsonObject = JSON.parseObject(exceptionInfo);
         if (exceptionInfo == null) {
             return null;
         }
@@ -122,8 +121,48 @@ public class ConsumeServerImpl implements ConsumeServer {
         msgObject.setLogTime(exceptionInfo.getCreateTime());
         msgObject.setCreateTime(timeForNow());
         msgObject.setMsg(msg);
+
+        // 处理异常信息 记录存储redis
+        saveRealExceptionInfo(msgObject,redisTemplate);
         return msgObject;
     }
+
+    /**
+     * 实时记录异常数据
+     */
+    @SuppressWarnings(value = "unchecked")
+    private void saveRealExceptionInfo(ExceptionInfo exceptionInfo, RedisTemplate redisTemplate){
+        SetOperations setOperations = redisTemplate.opsForSet();
+        // 按应用存储其异常类型
+        setOperations.add(exceptionInfo.getAppName() + "_exception_set",exceptionInfo.getExceptionType());
+        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        String now = DateFormatUtils.format(new Date(),"yyyy-MM-dd HH:mm:ss");
+        String appName = exceptionInfo.getAppName();
+        String exceptionType = exceptionInfo.getExceptionType();
+        String keyPerMinute = appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.lastIndexOf(":")).replace(" ","-");
+        String keyPerHour = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(":"))).replace(" ","-");
+        String keyPerDay = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(" ") + 1)).replace(" ","-");
+        // 存储每分钟内的异常数，失效时间20分钟
+        if(valueOperations.get(keyPerMinute) == null){
+            valueOperations.set(keyPerMinute,"1",20,TimeUnit.MINUTES);
+        }else {
+            valueOperations.increment(keyPerMinute,1);
+        }
+        // 存储每小时内的异常数，失效时间24小时
+        if(valueOperations.get(keyPerHour) == null){
+            valueOperations.set(keyPerHour,"1",24,TimeUnit.HOURS);
+        }else {
+            valueOperations.increment(keyPerHour,1);
+        }
+        // 存储每天内的异常数，失效时间20天
+        if(valueOperations.get(keyPerDay) == null){
+            valueOperations.set(keyPerDay, "1",20, TimeUnit.DAYS);
+        }else {
+            valueOperations.increment(keyPerDay, 1);
+        }
+    }
+
+
 
     private String getExceptionString(String msg) {
         String exceptionName = "";
@@ -151,11 +190,6 @@ public class ConsumeServerImpl implements ConsumeServer {
         return exceptionName;
     }
 
-//    public static void main(String args[]){
-//        String s = "VipServiceImpl--> Get user vip info error! userId=264271933,exceptionInfo=java.lang.NullPointerException\n";
-//    System.out.println(new ConsumeServerImpl().getExceptionString(s));
-//
-//    }
 
     /**
      * 异常警报
@@ -168,10 +202,10 @@ public class ConsumeServerImpl implements ConsumeServer {
             return;
         }
         //判断是否关联规则过滤
-        boolean isfilter = isfilter(config, exceptionInfo);
+        boolean isFilter = isFilter(config, exceptionInfo);
 
         //为true过滤不发送报警
-        if (isfilter) {
+        if (isFilter) {
             return;
         }
 
@@ -203,9 +237,9 @@ public class ConsumeServerImpl implements ConsumeServer {
      * @param exceptionInfo
      * @return
      */
-    private boolean isfilter(AlarmConfig config, ExceptionInfo exceptionInfo) {
+    private boolean isFilter(AlarmConfig config, ExceptionInfo exceptionInfo) {
         //默认发送报警
-        boolean isfilter = false;
+        boolean isFilter = false;
         try{
             if (null != config.getRuleId()) {
                 //获取规则配置脚本
@@ -220,18 +254,18 @@ public class ConsumeServerImpl implements ConsumeServer {
                     if (resObject.toString().equals("true")) {
                         //规则为true不发送报警
                         log.info("规则为ture不发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
-                        isfilter = true;
+                        isFilter = true;
                     } else if (resObject.toString().equals("false")) {
                         //规则返回为false发送报警
                         log.info("规则返回为false发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
-                        isfilter = false;
+                        isFilter = false;
                     }
                 }
             }
         }catch (Exception e){
             log.info("获取规则发生异常!e={}",e);
         }
-        return isfilter;
+        return isFilter;
     }
 
     /**
@@ -304,8 +338,9 @@ public class ConsumeServerImpl implements ConsumeServer {
             } else {
                 return true;
             }
+        }else {
+            return isAlarmed;
         }
-        return isAlarmed;
     }
 
 

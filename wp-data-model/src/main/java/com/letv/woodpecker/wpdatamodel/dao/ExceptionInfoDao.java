@@ -3,11 +3,14 @@ package com.letv.woodpecker.wpdatamodel.dao;
 import com.letv.woodpecker.wpdatamodel.model.ExceptionInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,7 +48,9 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
     public long getCountByDetail(String appName,String exceptionType,String contentMd5,String startTime,String endTime){
         Query query = new Query();
         query.addCriteria(Criteria.where("appName").is(appName));
-        query.addCriteria(Criteria.where("contentMd5").is(contentMd5));
+        if(StringUtils.isNotBlank(contentMd5)){
+            query.addCriteria(Criteria.where("contentMd5").is(contentMd5));
+        }
         if(exceptionType != null){
             query.addCriteria(Criteria.where("exceptionType").is(exceptionType));
         }
@@ -82,7 +87,7 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return queryList(query);
     }
 
-    public List<ExceptionInfo> queryAllExceptions(List<String> appNames, String appName, String startTime,String endTime, int pageStart, int pageSize){
+    public List<ExceptionInfo> queryAllExceptions(List<String> appNames, String appName, String startTime, String endTime, int pageStart, int pageSize){
         Query query = new Query();
         if(appName != null && !"".equals(appName)){
             query.addCriteria(Criteria.where("appName").is(appName));
@@ -126,10 +131,12 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return getCount(query);
     }
 
-    public List<ExceptionInfo> queryPageByDetail(String appName,String exceptionType,String contentMd5,String startTime,String endTime, int pageStart, int pageSize){
+    public List<ExceptionInfo> queryPageByDetail(String appName, String exceptionType, String contentMd5, String startTime, String endTime, int pageStart, int pageSize){
         Query query = new Query();
         query.addCriteria(Criteria.where("appName").is(appName));
-        query.addCriteria(Criteria.where("contentMd5").is(contentMd5));
+        if(StringUtils.isNotBlank(contentMd5)){
+            query.addCriteria(Criteria.where("contentMd5").is(contentMd5));
+        }
         if(exceptionType !=null ){
             query.addCriteria(Criteria.where("exceptionType").is(exceptionType));
         }
@@ -151,6 +158,45 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return queryList(query);
     }
 
+    /**
+     * 按应用名、异常类型、时间节点 查询异常详情
+     * @param appName            应用名
+     * @param exceptionType      异常类型
+     * @param logTime            日志时间
+     * @param pageStart          分页
+     * @param pageSize
+     * @return
+     */
+    public List<ExceptionInfo> queryPageByDetail(String appName, String exceptionType, String logTime, int pageStart, int pageSize){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("appName").is(appName));
+        query.addCriteria(Criteria.where("exceptionType").is(exceptionType));
+        String startTime = null;
+        String endTime = null;
+        String now = DateFormatUtils.format(new Date(),"yyyy-MM-dd HH:mm:ss");
+        String year = now != null ? now.split("-")[0] : "2018";
+
+        // 分钟级查询
+        if(logTime.contains(":")){
+            if(StringUtils.isNotBlank(now)){
+                startTime = new StringBuilder(year).append("-").append(logTime).append(":00").toString();
+                endTime = new StringBuilder(year).append("-").append(logTime).append(":59").toString();
+            }
+        }else {
+            startTime = new StringBuilder(year).append("-").append(logTime).append(":00").append(":00").toString();
+            endTime = new StringBuilder(year).append("-").append(logTime).append(":59").append(":59").toString();
+        }
+
+        Criteria criteria = new Criteria();
+        criteria.andOperator(Criteria.where("logTime").gte(startTime));
+        criteria.andOperator(Criteria.where("logTime").lte(endTime));
+
+        query.addCriteria(criteria);
+        query.skip(pageStart).limit(pageSize);
+        query.with(new Sort(new Sort.Order(Sort.Direction.DESC,"logTime")));
+        return queryList(query);
+
+    }
 
     /**
      * 按照异常类型分组

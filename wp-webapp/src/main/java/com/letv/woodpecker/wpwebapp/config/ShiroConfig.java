@@ -195,6 +195,8 @@ public class ShiroConfig {
         urls.put("/woodpecker/login","anon");
         urls.put("/woodpecker/user/saveUser","anon");
         urls.put("/woodpecker/user/editUser","anon");
+        urls.put("/woodpecker/exception/dynamic/info","anon");
+        urls.put("/woodpecker/exception/realtimeException","anon");
         urls.put("/**","user");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(urls);
         return shiroFilterFactoryBean;

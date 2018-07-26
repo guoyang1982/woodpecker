@@ -3,12 +3,9 @@ package com.letv.woodpecker.wpwebapp.controller;
 import com.letv.woodpecker.wpwebapp.auth.shiro.AuthUser;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -44,4 +41,6 @@ public class IndexController extends BaseController {
     public String introduction(){
         return "introduction";
     }
+
+
 }
