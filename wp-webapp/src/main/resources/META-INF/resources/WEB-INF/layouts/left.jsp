@@ -183,6 +183,10 @@
                     <span class="selected"></span>
                 </a>
                 </li>
+                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/application/toAppClustersStatusPage">应用状态管理
+                    <span class="selected"></span>
+                </a>
+                </li>
             </ul>
         </li>
         <li class="navFir">

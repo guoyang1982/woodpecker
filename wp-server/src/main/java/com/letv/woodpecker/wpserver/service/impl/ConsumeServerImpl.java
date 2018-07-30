@@ -122,8 +122,8 @@ public class ConsumeServerImpl implements ConsumeServer {
         msgObject.setCreateTime(timeForNow());
         msgObject.setMsg(msg);
 
-        // 处理异常信息 记录存储redis
-        saveRealExceptionInfo(msgObject,redisTemplate);
+        // 异步线程处理异常信息 记录存储redis
+        threadPoolManageUtil.getThreadPoolByKey("realTimeExceptionStatics").execute(() -> saveRealExceptionInfo(msgObject,redisTemplate));
         return msgObject;
     }
 
