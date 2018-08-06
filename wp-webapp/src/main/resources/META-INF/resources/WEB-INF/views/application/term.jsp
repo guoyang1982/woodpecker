@@ -22,6 +22,7 @@
                     y: 55,
                     cols: 136,
                     rows: 35,
+                    ps:'wp>',
                     termDiv: 'termDiv',
                     bgColor: '#232e45',
                     initHandler: termInitHandler,
