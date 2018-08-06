@@ -12,16 +12,16 @@
     <!-- END PAGE LEVEL SCRIPTS -->
     <script type="text/javascript">
         var term;
-        var wsUrl = "ws://localhost:${webSocketPort}/websocket"
+        var wsUrl = "ws://${webSocketIp}:${webSocketPort}/websocket"
         websocket = new WebSocket(wsUrl);
         websocket.onopen = function (evt) {
             //alert("dddd");
             term = new Terminal(
                 {
                     x: 255,
-                    y: 55,
+                    y: 53,
                     cols: 136,
-                    rows: 35,
+                    rows: 37,
                     ps:'wp>',
                     termDiv: 'termDiv',
                     bgColor: '#232e45',

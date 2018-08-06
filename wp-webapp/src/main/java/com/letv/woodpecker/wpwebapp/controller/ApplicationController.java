@@ -76,9 +76,12 @@ public class ApplicationController extends BaseController {
 
     @RequestMapping("/toTermPage")
     public String termPage(String ip, ModelMap model) {
+
+        final String webSocketIp = env.getProperty("websocket.ip", "127.0.0.1");
         final String port = env.getProperty("websocket.port", "8080");
 
         model.addAttribute("ip", ip);
+        model.addAttribute("webSocketIp", webSocketIp);
         model.addAttribute("webSocketPort", port);
         return "application/term";
     }

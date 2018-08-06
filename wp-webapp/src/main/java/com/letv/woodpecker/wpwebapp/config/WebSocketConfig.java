@@ -21,12 +21,14 @@ public class WebSocketConfig {
     public WebSocketServer socketServer() {
         WebSocketServer webSocketServer = new WebSocketServer();
         final String port = env.getProperty("websocket.port", "8080");
+        final String ip = env.getProperty("websocket.ip", "8080");
+
 
         final Thread socketThread = new Thread("webSocket-daemon") {
             @Override
             public void run() {
                 try {
-                    webSocketServer.run("127.0.0.1", Integer.parseInt(port));
+                    webSocketServer.run(ip, Integer.parseInt(port));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
