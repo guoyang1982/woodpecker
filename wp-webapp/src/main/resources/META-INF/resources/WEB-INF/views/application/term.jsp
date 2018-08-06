@@ -33,13 +33,15 @@
             );
             term.open();
         }
-
+        var t = 1;
         websocket.onmessage = function (evt) {
             term.newLine();
             if (evt.data == "over") {
                 term.prompt();
+                t = 1;
             } else {
                 term.write(evt.data);
+                t = 0;
             }
         }
 
@@ -60,6 +62,11 @@
 
         function termHandler() {
             this.newLine();
+            //持续输出时 不接受控制台输入命令
+            if(t == 0){
+                this.prompt();
+                return;
+            }
             this.lineBuffer = this.lineBuffer.replace(/^\s+/, '');
             var argv = this.lineBuffer.split(/\s+/);
             var cmd = argv[0];
