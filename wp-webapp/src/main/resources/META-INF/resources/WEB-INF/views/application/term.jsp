@@ -75,6 +75,7 @@
                         websocket.send(this.lineBuffer);
                     }
             }
+            this.prompt();
         }
 
         function stop() {
@@ -207,10 +208,10 @@
 
 <div id="termDiv" style="position:absolute; visibility: hidden; z-index:1;"></div>
 
-<div id="term" class="footer_term">
-    <%--<a href="javascript:stop()">退出当前命令</a>--%>
-    <button id="stop" onclick="stop()" type="button" class="btn green">退出当前命令</button>
-</div>
+<%--<div id="term" class="footer_term">--%>
+    <%--&lt;%&ndash;<a href="javascript:stop()">退出当前命令</a>&ndash;%&gt;--%>
+    <%--<button id="stop" onclick="stop()" type="button" class="btn green">退出当前命令</button>--%>
+<%--</div>--%>
 
 </body>
 </html>
