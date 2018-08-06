@@ -48,10 +48,9 @@
         }
 
         function termCtrlHandler() {
-            if (this.inputChar == 100) {
+            if(this.inputChar == 100 || this.inputChar == 4){
                 websocket.send("kill");
             }
-
         }
 
         function termExitHandler() {
