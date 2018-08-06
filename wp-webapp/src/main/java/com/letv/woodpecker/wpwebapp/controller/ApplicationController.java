@@ -147,6 +147,7 @@ public class ApplicationController extends BaseController {
                             ip.append("<button type=\"button\"  class=\"btn mini gray\" onclick=\" deleteUnusedAppIp(").append("'").append(appInfo.getAppName()).append("'").append(",").append("'").append(ipAndPort.replaceAll("\\.", "-")).append("'").append(")\">").append(ipAndPort).append("</button>").append("</br></br>");
 
                         }
+                        i = 1;
                     } else {
                         if (isAlive) {
                             // 当前节点存活
