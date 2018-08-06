@@ -78,11 +78,12 @@ public class SocketServer {
                 if (null == ss) {
                     ss = new StringBuffer();
                 }
+                //10为/n换行
                 if (c == 10) {
                     //System.out.println(ss.toString());
                     ctx.channel().writeAndFlush(new TextWebSocketFrame(ss.toString()));
                     ss = null;
-                } else if (c == 0) {
+                } else if (c == 0) {//0为woodpecker服务端传回的结束符号
                     ctx.channel().writeAndFlush(new TextWebSocketFrame("over"));
                     ss = null;
                 } else {
