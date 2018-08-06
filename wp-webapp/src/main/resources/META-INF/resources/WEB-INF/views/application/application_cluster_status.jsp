@@ -76,6 +76,11 @@
             });
         }
 
+        function termOpen(ip) {
+            var that = application;
+            this.location.href="/woodpecker/application/toTermPage?ip="+ip;
+        }
+
     </script>
     <script id="temp_op" type="text/template">
         <span data-sign="{{=sign}}" data-id="{{=id}}" data-name="{{=name}}">
