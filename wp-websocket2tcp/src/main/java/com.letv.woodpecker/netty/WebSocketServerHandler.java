@@ -65,7 +65,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             return;
         }
 
-        // 构造握手响应返回，本机测试
+        // 构造握手响应返回，本机测试。注意，这条地址别被误导了，其实这里填写什么都无所谓，WS协议消息的接收不受这里控制
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                 "ws://localhost:8080/websocket", null, false);
         handshaker = wsFactory.newHandshaker(req);
