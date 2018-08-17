@@ -53,7 +53,8 @@
     java -jar wp-server-0.0.1-SNAPSHOT.jar
    #### web端启动：
     java -jar wp-webapp-0.0.1-SNAPSHOT.jar
-
-## 7.维护人员
+## 7.微信企业号注册地址：
+    https://work.weixin.qq.com/?from=qyh_redirect
+## 8.维护人员
    * 郭阳
    * 梅俊杰
