@@ -31,7 +31,7 @@
    #### clone代码
     git clone git@github.com:guoyang1982/docker-redis-cluster.git
    #### build镜像
-    docker-compose -f compose.yml
+    docker-compose -f compose.yml build
    #### 启动镜像
     docker-compose -f compose.yml up -d
    
