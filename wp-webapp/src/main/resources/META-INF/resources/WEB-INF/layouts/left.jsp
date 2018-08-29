@@ -175,6 +175,16 @@
                     <span class="selected"></span>
                 </a>
                 </li>
+                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/application/toAppClustersStatusPage">应用状态管理
+                    <span class="selected"></span>
+                </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="navFir">
+            <h2>告警管理</h2>
+            <ul class="navTwo">
                 <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/alarmconfig/toAlarmConfigPage">告警配置
                     <span class="selected"></span>
                 </a>
@@ -183,7 +193,7 @@
                     <span class="selected"></span>
                 </a>
                 </li>
-                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/application/toAppClustersStatusPage">应用状态管理
+                <li class="hit"><a dataName="1" target="_self" class="hita" href="/woodpecker/alarmconfig/toGlobalAlarmConfigPage">全局告警配置
                     <span class="selected"></span>
                 </a>
                 </li>

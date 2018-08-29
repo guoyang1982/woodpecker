@@ -1,7 +1,7 @@
 /**
  * Created by wangruifeng on 14-5-12.
  */
-define(["./alarmconfig_new", "./alarmconfig_edit", "../common/confirm"],
+define(["./globalalarmconfig_new", "./globalalarmconfig_edit", "../common/confirm"],
     function (alarmconfigNew, alarmEdit, Confirm) {
 
         function alarmconfig(options) {
@@ -63,7 +63,8 @@ define(["./alarmconfig_new", "./alarmconfig_edit", "../common/confirm"],
             getQueryParams: function () {
                 return [
                     {name: "username", value: this.options.userName},
-                    {name: "id", value: 0}
+                    {name: "id", value: 0},
+                    {name: "configType", value: "GLOBAL"}
                 ];
             },
 
@@ -71,6 +72,7 @@ define(["./alarmconfig_new", "./alarmconfig_edit", "../common/confirm"],
                 var that = this;
                 this.dataTable = $("#table_alarmconfig").dataTable({
                     iDisplayLength: 10,
+                    configType: "GLOBAL",
                     bProcessing: true,
                     bServerSide: true,
                     bSort: false,
@@ -88,8 +90,6 @@ define(["./alarmconfig_new", "./alarmconfig_edit", "../common/confirm"],
                     aoColumns: [
                         {mData : "alarmId",  bVisible : false},
                         {sTitle: "应用名称", mData: "appName"},
-                        {sTitle: "IP", mData: "ip"},
-                        {sTitle: "异常类型", mData: "exceptionType"},
                         {sTitle: "规则id", mData: null,
                             fnRender: function (obj) {
                                 return obj.aData.ruleId
@@ -103,6 +103,11 @@ define(["./alarmconfig_new", "./alarmconfig_edit", "../common/confirm"],
                         {sTitle: "告警频率", mData: null,
                             fnRender: function (obj) {
                                 return obj.aData.alarmFrequency
+                            }
+                        },
+                        {sTitle: "告警倍率", mData: null,
+                            fnRender: function (obj) {
+                                return obj.aData.multiple
                             }
                         },
                         {sTitle: "告警邮箱", mData: null,

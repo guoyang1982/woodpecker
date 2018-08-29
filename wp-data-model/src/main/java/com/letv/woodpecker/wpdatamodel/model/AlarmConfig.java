@@ -11,6 +11,8 @@ import java.io.Serializable;
 @Data
 public class AlarmConfig implements Serializable{
 
+    private static final long serialVersionUID = -8841984191517924171L;
+
     private String _id;
     private String alarmId;
     private String userId;
@@ -18,7 +20,16 @@ public class AlarmConfig implements Serializable{
     private String ip;
     private String exceptionType;
 
+    /** 全局配置GLOBAL 普通配置NORMAL或者NULL 默认是普通配置*/
+    private String configType;
+
+    /**规则ID */
     private String ruleId;
+
+    /** 告警配置倍率*/
+    private Double multiple;
+
+
     /**
      * 告警阈值
      */

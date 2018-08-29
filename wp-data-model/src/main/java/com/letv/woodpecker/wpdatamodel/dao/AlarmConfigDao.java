@@ -26,12 +26,21 @@ public class AlarmConfigDao extends MongoDao<AlarmConfig> {
         return queryList(query);
     }
 
+    /**
+     * cha
+     * @param appName
+     * @return
+     */
+    public AlarmConfig queryGlobalAlarmCinfig(String appName){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("appName").is(appName));
+        query.addCriteria(Criteria.where("configType").is("GLOBAL"));
+        return queryOne(query);
+    }
+
     public void deleteConfig(AlarmConfig config){
         Query query = new Query();
-        query.addCriteria(Criteria.where("userId").is(config.getUserId()));
-        query.addCriteria(Criteria.where("appName").is(config.getAppName()));
-        query.addCriteria(Criteria.where("ip").is(config.getIp()));
-        query.addCriteria(Criteria.where("exceptionType").is(config.getExceptionType()));
+        query.addCriteria(Criteria.where("_id").is(config.getAlarmId()));
         delete(query);
     }
 
@@ -39,7 +48,7 @@ public class AlarmConfigDao extends MongoDao<AlarmConfig> {
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(config.get_id()));
         Update update = Update.update("ruleId", config.getRuleId())
-                .set("threshold", config.getThreshold()).set("alarmFrequency",config.getAlarmFrequency())
+                .set("threshold", config.getThreshold()).set("alarmFrequency",config.getAlarmFrequency()).set("multiple",config.getMultiple())
                 .set("email",config.getEmail()).set("phoneNum",config.getPhoneNum())
                 .set("corpid",config.getCorpid()).set("secret",config.getSecret())
                 .set("toparty",config.getToparty()).set("agentid",config.getAgentid());

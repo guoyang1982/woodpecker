@@ -51,10 +51,22 @@ public class AlarmConfigController extends BaseController {
         return "alarmconfig/alarmconfig";
     }
 
+    /**
+     * 全局异常配置
+     * @return
+     */
+    @RequestMapping("/toGlobalAlarmConfigPage")
+    public String globalAlarmConfigList(){
+        return "alarmconfig/globalalarmconfig";
+    }
+
     @RequestMapping("/toAlarmConfigAddPage")
-    public String addAlarmConfigPage(String username, ModelMap model) {
+    public String addAlarmConfigPage(String username, String configType, ModelMap model) {
         List<AppInfo> apps = applicationService.queryAllApps(username, 0, Integer.MAX_VALUE);
         model.put("appInfos", apps);
+        if(configType.equals("GLOBAL")){
+            return "alarmconfig/globalalarmconfig_new";
+        }
         return "alarmconfig/alarmconfig_new";
     }
 
@@ -67,21 +79,22 @@ public class AlarmConfigController extends BaseController {
         int pageSize = Integer.valueOf(params.get("iDisplayLength"));
         AuthUser authUser = (AuthUser) SecurityUtils.getSubject().getPrincipal();
         List<AlarmConfig> results = new ArrayList<>(4);
-
+        String configType = params.get("configType");
         long count;
         // 超级管理员可以查看所有告警配置
         if(authUser.getRole() == RoleIds.SUPER_ADMINER){
-            results = alarmConfigService.queryAlarmConfigs(userId, pageStart, pageSize);
-            count = alarmConfigService.getConfigsCount(userId);
+            results = alarmConfigService.queryAlarmConfigs(userId, configType,pageStart, pageSize);
+            count = alarmConfigService.getConfigsCount(userId, configType);
+
         }else {
             List<String> appNames = new ArrayList<>(4);
             for(UserApp userApp : userAppService.queryList(userIdTemp)){
                 appNames.add(applicationService.getByAppId(userApp.getAppId()).getAppName());
             }
-            count = alarmConfigService.getConfigsCountByAppNames(appNames);
+            count = alarmConfigService.getConfigsCountByAppNames(appNames,configType);
             List<AppInfo> appInfos = applicationService.queryAllApps(userId, pageStart, pageSize);
             for(AppInfo appInfo : appInfos){
-                results.addAll(alarmConfigService.queryListByAppName(appInfo.getAppName()));
+                results.addAll(alarmConfigService.queryListByAppName(appInfo.getAppName(),configType));
             }
         }
         for (int i = 0; i < results.size(); i++) {
@@ -104,15 +117,11 @@ public class AlarmConfigController extends BaseController {
         return result;
     }
 
-    @RequestMapping(value = "/deleteConfig/{userId}/{appName}/{ip}/{exceptionType}", method = RequestMethod.DELETE)
-    public void deleteConfig(@PathVariable("userId") String userId, @PathVariable("appName") String appName,
-                             @PathVariable("ip") String ip, @PathVariable("exceptionType") String exceptionType, HttpServletResponse response) {
+    @RequestMapping(value = "/deleteConfig/{alarmId}", method = RequestMethod.DELETE)
+    public void deleteConfig(@PathVariable("alarmId") String alarmId, HttpServletResponse response) {
         ResultBean resultBean = new ResultBean(0, "success");
         AlarmConfig config = new AlarmConfig();
-        config.setUserId(userId);
-        config.setAppName(appName);
-        config.setIp(ip);
-        config.setExceptionType(exceptionType);
+        config.setAlarmId(alarmId);
         try {
             alarmConfigService.deleteConfig(config);
         } catch (Exception e) {
@@ -123,7 +132,7 @@ public class AlarmConfigController extends BaseController {
     }
 
     @RequestMapping(value = "/queryById/{id}")
-    public ModelAndView queryById(HttpServletResponse reponse, @PathVariable("id") String id) {
+    public ModelAndView queryById(HttpServletResponse response, @PathVariable("id") String id) {
         AlarmConfig alarmConfig = alarmConfigService.queryAlarmConfig(id);
 
         List<RuleConfig> ruleConfigs = ruleConfigService.queryRuleConfigs(alarmConfig.getAppName());
@@ -135,7 +144,11 @@ public class AlarmConfigController extends BaseController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("alarmConfig", alarmConfig);
         modelAndView.addObject("ruleConfigs", ruleConfigs);
-        modelAndView.setViewName("alarmconfig/alarmconfig_edit");
+        if(alarmConfig.getConfigType() != null && alarmConfig.getConfigType().equals("GLOBAL")){
+            modelAndView.setViewName("alarmconfig/globalalarmconfig_edit");
+        }else {
+            modelAndView.setViewName("alarmconfig/alarmconfig_edit");
+        }
         return modelAndView;
     }
 
@@ -143,10 +156,18 @@ public class AlarmConfigController extends BaseController {
     public void saveAlarmConfig(AlarmConfig alarmConfig, HttpServletResponse response) {
         ResultBean result = new ResultBean(0, "success");
         try {
+            if(alarmConfig.getMultiple() != null){
+                // 检查
+                List<AlarmConfig> alarmConfigs = alarmConfigService.queryListByAppName(alarmConfig.getAppName(),"GLOBAL");
+                if(alarmConfigs != null && alarmConfigs.size()==1){
+                    throw new IllegalArgumentException("应用: " + alarmConfig.getAppName() + " 已存在全局告警配置");
+                }
+                alarmConfig.setConfigType("GLOBAL");
+            }
             alarmConfigService.saveAlarmConfig(alarmConfig);
         } catch (Exception e) {
             result.setCode(1);
-            result.setMessage("fail!");
+            result.setMessage(e.getMessage());
         }
         printJSON(response, result);
     }

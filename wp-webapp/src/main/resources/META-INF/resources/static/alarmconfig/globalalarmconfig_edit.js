@@ -2,14 +2,14 @@
  * Created by wangruifeng on 14-5-12.
  */
 define(function(){
-
-    function alarmEdit(options){
-        this.init(options);
-    }
+	
+	function alarmEdit(options){
+		this.init(options);
+	}
 
     alarmEdit.prototype = {
-
-        init: function (options) {
+			
+		init: function (options) {
             this.options = options;
         },
         setOptions: function (options) {
@@ -59,7 +59,7 @@ define(function(){
             // }
             var that = this;
             $("#btn_alarmconfig_edit").attr("disabled", true);
-            // 保存请求
+         // 保存请求
             $.ajax({
                 url: "/woodpecker/alarmconfig/modifyAlarmConfig",
                 type: "post",
@@ -84,7 +84,7 @@ define(function(){
                 this.options.callback_btnBack();
             }
         }
-    };
-    return alarmEdit ;
-
+	};
+	return alarmEdit ;
+	
 });

@@ -3,8 +3,9 @@ package com.letv.woodpecker.wpdatamodel.dao;
 import com.letv.woodpecker.wpdatamodel.model.ExceptionInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -87,7 +88,7 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return queryList(query);
     }
 
-    public List<ExceptionInfo> queryAllExceptions(List<String> appNames, String appName, String startTime, String endTime, int pageStart, int pageSize){
+    public List<ExceptionInfo> queryAllExceptions(List<String> appNames, String appName, String startTime,String endTime, int pageStart, int pageSize){
         Query query = new Query();
         if(appName != null && !"".equals(appName)){
             query.addCriteria(Criteria.where("appName").is(appName));
@@ -131,7 +132,7 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return getCount(query);
     }
 
-    public List<ExceptionInfo> queryPageByDetail(String appName, String exceptionType, String contentMd5, String startTime, String endTime, int pageStart, int pageSize){
+    public List<ExceptionInfo> queryPageByDetail(String appName,String exceptionType,String contentMd5,String startTime,String endTime, int pageStart, int pageSize){
         Query query = new Query();
         query.addCriteria(Criteria.where("appName").is(appName));
         if(StringUtils.isNotBlank(contentMd5)){

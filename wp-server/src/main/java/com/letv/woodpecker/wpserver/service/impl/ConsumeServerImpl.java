@@ -1,19 +1,17 @@
 package com.letv.woodpecker.wpserver.service.impl;
 
+
 import com.letv.woodpecker.wpdatamodel.dao.AlarmConfigDao;
 import com.letv.woodpecker.wpdatamodel.dao.AlarmHistoryDao;
 import com.letv.woodpecker.wpdatamodel.dao.ExceptionInfoDao;
-import com.letv.woodpecker.wpdatamodel.model.AlarmConfig;
-import com.letv.woodpecker.wpdatamodel.model.AlarmHistory;
-import com.letv.woodpecker.wpdatamodel.model.ExceptionInfo;
-import com.letv.woodpecker.wpdatamodel.model.RuleConfig;
+import com.letv.woodpecker.wpdatamodel.model.*;
 import com.letv.woodpecker.wpdatamodel.service.RuleConfigService;
 import com.letv.woodpecker.wpserver.message.MessageBean;
 import com.letv.woodpecker.wpserver.service.ConsumeServer;
 import com.letv.woodpecker.wpserver.utils.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service("consumeServer")
+@SuppressWarnings("unchecked")
 public class ConsumeServerImpl implements ConsumeServer {
 
     private static final String EXCEPTION = "Exception";
@@ -82,14 +82,23 @@ public class ConsumeServerImpl implements ConsumeServer {
         if (exceptionInfo == null) {
             return;
         }
-        //获取该条异常所有的报警规则
-        List<AlarmConfig> configs = alarmConfigDao.queryList(exceptionInfo.getAppName(), exceptionInfo.getIp(), exceptionInfo.getExceptionType());
+        List<AlarmConfig> configs = new ArrayList<>(4);
+        // 获取全局异常
+        AlarmConfig globalConfig = alarmConfigDao.queryGlobalAlarmCinfig(exceptionInfo.getAppName());
+        // 检测是否需要报警
+        if(globalConfig != null){
+            // 执行报警
+            if(isAutoAlarm(exceptionInfo,globalConfig)) {
+                configs.add(globalConfig);
+            }
+        }else {
+            configs = alarmConfigDao.queryList(exceptionInfo.getAppName(), exceptionInfo.getIp(), exceptionInfo.getExceptionType());
+        }
         for (AlarmConfig config : configs) {
-            //报警
             exceptionAlarm(config, exceptionInfo);
         }
+
         try {
-            //将报警信息插入MongoDB
             exceptionInfoDao.save(exceptionInfo);
         } catch (MailException e) {
             log.error("save exceptionInfo fail! msg {}", exceptionInfo);
@@ -126,6 +135,70 @@ public class ConsumeServerImpl implements ConsumeServer {
         threadPoolManageUtil.getThreadPoolByKey("realTimeExceptionStatics").execute(() -> saveRealExceptionInfo(msgObject,redisTemplate));
         return msgObject;
     }
+
+
+    /**
+     * 细化当前异常类型
+     * @param exceptionInfo
+     * @param globalConfig
+     */
+    @SuppressWarnings("unchecked")
+    private boolean isAutoAlarm(ExceptionInfo exceptionInfo, AlarmConfig globalConfig){
+        if(exceptionInfo == null || globalConfig == null){
+            return false;
+        }
+        int[] alarmData = getAlarmData(exceptionInfo);
+
+        Double alarmThresholdValue = alarmData[1] * globalConfig.getMultiple();
+
+        return alarmData[0] > alarmThresholdValue;
+    }
+
+
+    private int[] getAlarmData(ExceptionInfo exceptionInfo){
+        if(exceptionInfo == null){
+            return null;
+        }
+        int[] alarmData = new int[2];
+        String appName = exceptionInfo.getAppName();
+        String exceptionType = exceptionInfo.getExceptionType();
+        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        int max = 0;
+        int compareDay = 4;
+        for(int i = 0; i < compareDay; i++){
+            String now = DateUtil.getStringDateByNum(new Date(),-i);
+            String key = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(" ") + 1)).replace(" ","-");
+            if(i == 0){
+                alarmData[0] = valueOperations.get(key) == null ? 0 : Integer.valueOf(valueOperations.get(key));
+            }else {
+                // 获取前三内当前异常的最大值
+                int temp = valueOperations.get(key) == null ? 0 : Integer.valueOf(valueOperations.get(key));
+                if(max < temp){
+                    max = temp;
+                }
+            }
+        }
+        alarmData[1] = max;
+        return alarmData;
+    }
+
+
+
+
+
+    /**
+     * 比较两个异常的消息的相似性 采用Jaro距离
+     * TODO 后期可以考虑的方案 LDA 词向量
+     */
+    private boolean computeTextSimilarity(String source, String target){
+        boolean result = false;
+        double flag = 0.75;
+        if(StringUtils.getJaroWinklerDistance(source, target) > flag){
+            result = true;
+        }
+        return result;
+    }
+
 
     /**
      * 实时记录异常数据
@@ -210,26 +283,42 @@ public class ConsumeServerImpl implements ConsumeServer {
         }
 
         final String appName = config.getAppName();
-        final String ip = ALL.equals(config.getIp()) ? ALL : exceptionInfo.getIp();
+        if(config.getConfigType().equals("GLOBAL")){
+            final String ip = exceptionInfo.getIp();
+            String latestAlarmTime = alarmHistoryDao.getLatestAlarmTime(appName,"all",exceptionInfo.getExceptionType());
+            int current = (int)exceptionInfoDao.getExceptionCount(appName,"all",exceptionInfo.getExceptionType(),latestAlarmTime);
+            if(current + 1 >= config.getThreshold()){
+                config.setIp("all");
+                if(!checkAlarmFreq(config)){
+                    threadPoolManageUtil.getThreadPoolByKey("mailSend").execute(() -> doAlarm(appName,ip,exceptionInfo.getIp(),exceptionInfo.getExceptionType(),config,exceptionInfo.getMsg()));
+                }
+            }
+        }else {
+            final String ip = ALL.equals(config.getIp()) ? ALL : exceptionInfo.getIp();
 
-        // 报警中最好不要出现all 这种全部异常输出的（后期在报警配置中需要完善）
-        final String exceptionType = ALL.equals(config.getExceptionType()) ? ALL : exceptionInfo.getExceptionType();
-        //获取最近的告警时间
-        String latestAlarmTime = alarmHistoryDao.getLatestAlarmTime(appName, ip, exceptionType);
-        //获取最近告警次数
-        int current = (int) exceptionInfoDao.getExceptionCount(appName, ip, exceptionType, latestAlarmTime);
+            // 报警中最好不要出现all 这种全部异常输出的（后期在报警配置中需要完善）
+            final String exceptionType = ALL.equals(config.getExceptionType()) ? ALL : exceptionInfo.getExceptionType();
+            //获取最近的告警时间
+            String latestAlarmTime = alarmHistoryDao.getLatestAlarmTime(appName, ip, exceptionType);
+            //获取最近告警次数
+            int current = (int) exceptionInfoDao.getExceptionCount(appName, ip, exceptionType, latestAlarmTime);
 
-        //判断告警是否超过阈值，是就进行邮件通知
-        //针对appName ip exceptionType 进行过滤，对同一个appName+ip+exceptionType的配置最好发送报警人一样，不能多份，多份会导致被同样规则过滤
-        if (current + 1 >= config.getThreshold()) {
-            // 控制发送邮件的频率,从告警配置中获取参数
-            boolean flag = checkAlarmFreq(config);
-            if (!flag) {
-                threadPoolManageUtil.getThreadPoolByKey("mailSend").execute(()
-                        -> doAlarm(appName, ip, exceptionInfo.getIp(), exceptionType, config, exceptionInfo.getMsg()));
+            //判断告警是否超过阈值，是就进行邮件通知
+            //针对appName ip exceptionType 进行过滤，对同一个appName+ip+exceptionType的配置最好发送报警人一样，不能多份，多份会导致被同样规则过滤
+            if (current + 1 >= config.getThreshold()) {
+                // 控制发送邮件的频率,从告警配置中获取参数
+                boolean flag = checkAlarmFreq(config);
+                if (!flag) {
+                    threadPoolManageUtil.getThreadPoolByKey("mailSend").execute(()
+                            -> doAlarm(appName, ip, exceptionInfo.getIp(), exceptionType, config, exceptionInfo.getMsg()));
+                }
             }
         }
     }
+
+
+
+
 
     /**
      * 为ture过滤不发送 为false发送报警
@@ -242,31 +331,43 @@ public class ConsumeServerImpl implements ConsumeServer {
         boolean isFilter = false;
         try{
             if (null != config.getRuleId()) {
-                //获取规则配置脚本
-                RuleConfig ruleConfig = ruleConfigService.queryRuleConfig(config.getRuleId());
-                if (null != ruleConfig) {
-                    Object resObject = GroovyTool.getInstance().runGroovyScript(ruleConfig.getRuleConfig(),
-                            "validate", new String[]{exceptionInfo.getMsg()});
-                    if (null == resObject) {
-                        //不进行过滤 还需要发报警
-                        return false;
-                    }
-                    if (resObject.toString().equals("true")) {
-                        //规则为true不发送报警
-                        log.info("规则为ture不发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
-                        isFilter = true;
-                    } else if (resObject.toString().equals("false")) {
-                        //规则返回为false发送报警
-                        log.info("规则返回为false发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
-                        isFilter = false;
-                    }
-                }
+                isFilter = dealRule(config.getRuleId(), exceptionInfo);
             }
         }catch (Exception e){
             log.info("获取规则发生异常!e={}",e);
         }
         return isFilter;
     }
+
+
+
+    private boolean dealRule(String ruleId, ExceptionInfo exceptionInfo){
+        boolean isFilter = false;
+        if(StringUtils.isNotEmpty(ruleId)){
+            //获取规则配置脚本
+            RuleConfig ruleConfig = ruleConfigService.queryRuleConfig(ruleId);
+            if (null != ruleConfig) {
+                Object resObject = GroovyTool.getInstance().runGroovyScript(ruleConfig.getRuleConfig(),
+                        "validate", new String[]{exceptionInfo.getMsg()});
+                if (null == resObject) {
+                    //不进行过滤 还需要发报警
+                    return false;
+                }
+                if (resObject.toString().equals("true")) {
+                    //规则为true不发送报警
+                    log.info("规则为ture不发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
+                    isFilter = true;
+                } else if (resObject.toString().equals("false")) {
+                    //规则返回为false发送报警
+                    log.info("规则返回为false发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
+                    isFilter = false;
+                }
+            }
+
+        }
+        return isFilter;
+    }
+
 
     /**
      * 执行报警操作
@@ -310,6 +411,9 @@ public class ConsumeServerImpl implements ConsumeServer {
         history.setAlarmTime(timeForNow());
         alarmHistoryDao.save(history);
     }
+
+
+
 
     private String timeForNow() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -10,13 +10,13 @@ import java.util.List;
  */
 public interface AlarmConfigService {
 
-    List<AlarmConfig> queryAlarmConfigs(String userId, int pageStart, int pageSize);
+    List<AlarmConfig> queryAlarmConfigs(String userId, String configType, int pageStart, int pageSize);
 
     AlarmConfig queryAlarmConfig(String id);
 
-    long getConfigsCount(String userId);
+    long getConfigsCount(String userId, String configType);
 
-    long getConfigsCountByAppNames(List<String> appNames);
+    long getConfigsCountByAppNames(List<String> appNames, String configType);
 
     void saveAlarmConfig(AlarmConfig alarmConfig);
 
@@ -24,5 +24,5 @@ public interface AlarmConfigService {
 
     void modifyAlarmConfig(AlarmConfig config);
 
-    List<AlarmConfig> queryListByAppName(String appName);
+    List<AlarmConfig> queryListByAppName(String appName, String configType);
 }

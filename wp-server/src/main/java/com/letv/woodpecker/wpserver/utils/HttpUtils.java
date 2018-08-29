@@ -1,7 +1,7 @@
 package com.letv.woodpecker.wpserver.utils;
 
 import com.google.common.base.Charsets;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -102,7 +102,7 @@ public class HttpUtils {
     }
 
     /**
-     * 
+     *
      * @param url
      * @param host
      * @param headerList
@@ -113,7 +113,7 @@ public class HttpUtils {
      * @throws Exception
      */
     public static String get(String url, String host, List<Header> headerList, int socket_timeout, int conn_timeout,
-            Charset charset) throws Exception {
+                             Charset charset) throws Exception {
 
         HttpGet httpGet = new HttpGet(url);
 
@@ -149,7 +149,7 @@ public class HttpUtils {
     }
 
     /**
-     * 
+     *
      * @param url
      * @param host
      * @param headerList
@@ -160,7 +160,7 @@ public class HttpUtils {
      * @throws Exception
      */
     public static <T> T get(String url, String host, List<Header> headerList, int socket_timeout, int conn_timeout,
-            ResponseHandler<T> responseHandler) throws Exception {
+                            ResponseHandler<T> responseHandler) throws Exception {
 
         HttpGet httpGet = new HttpGet(url);
 
@@ -221,7 +221,7 @@ public class HttpUtils {
     }
 
     /**
-     * 
+     *
      * @param url
      * @param host
      * @param charset
@@ -233,7 +233,7 @@ public class HttpUtils {
      * @throws Exception
      */
     public static String post(String url, String host, Charset charset, List<Header> headerList,
-            List<NameValuePair> nameValuePairList, int socket_timeout, int conn_timeout) throws Exception {
+                              List<NameValuePair> nameValuePairList, int socket_timeout, int conn_timeout) throws Exception {
         HttpPost httpPost = new HttpPost(url);
         try {
             if (charset == null) {
@@ -278,7 +278,7 @@ public class HttpUtils {
     }
 
     public static String post(String url, String host, Charset charset, List<Header> headerList, String body,
-            int socket_timeout, int conn_timeout) throws Exception {
+                              int socket_timeout, int conn_timeout) throws Exception {
         HttpPost httpPost = new HttpPost(url);
         try {
             if (charset == null) {

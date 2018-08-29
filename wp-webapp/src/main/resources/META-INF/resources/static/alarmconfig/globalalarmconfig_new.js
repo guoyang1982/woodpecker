@@ -39,7 +39,7 @@ define(function () {
         loadContent: function () {
             // 将页面中form_temp部分的内容加载到容器中
             var url = "/woodpecker/alarmconfig/toAlarmConfigAddPage";
-            var params = {username: this.options.username, configType: "NORMAL"};
+            var params = {username: this.options.username,configType: "GLOBAL"};
             var that = this;
             $("#div_alarmconfig_edit").empty();
             $("#div_alarmconfig_edit").block({message: "Loading..."});

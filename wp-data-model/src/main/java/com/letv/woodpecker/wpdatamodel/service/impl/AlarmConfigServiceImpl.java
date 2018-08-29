@@ -21,15 +21,23 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
     private AlarmConfigDao alarmConfigDao;
 
     @Override
-    public List<AlarmConfig> queryAlarmConfigs(String userId, int pageStart, int pageSize) {
+    public List<AlarmConfig> queryAlarmConfigs(String userId, String configType, int pageStart, int pageSize) {
         Query query = new Query();
         query.addCriteria(Criteria.where("userId").exists(true));
+        // 判断是否查询当前应用的全局异常
+        if(configType !=null && configType.equals("GLOBAL")){
+            query.addCriteria(Criteria.where("configType").is("GLOBAL"));
+        }else {
+            query.addCriteria(Criteria.where("configType").is(null));
+        }
         if(pageSize != Integer.MAX_VALUE){
             query.skip(pageStart).limit(pageSize);
         }
 
         return alarmConfigDao.queryList(query);
     }
+
+
 
     @Override
     public AlarmConfig queryAlarmConfig(String id) {
@@ -39,16 +47,22 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
     }
 
     @Override
-    public long getConfigsCount(String userId) {
+    public long getConfigsCount(String userId, String configType) {
         Query query = new Query();
         query.addCriteria(Criteria.where("userId").exists(true));
+        if(configType != null && configType.equals("GLOBAL")){
+            query.addCriteria(Criteria.where("configType").is("GLOBAL"));
+        }
         return alarmConfigDao.getCount(query);
     }
 
     @Override
-    public long getConfigsCountByAppNames(List<String> appNames) {
+    public long getConfigsCountByAppNames(List<String> appNames, String configType) {
         Query  query = new Query();
         query.addCriteria(Criteria.where("appName").in(appNames));
+        if(configType != null && configType.equals("GLOBAL")){
+            query.addCriteria(Criteria.where("configType").is("GLOBAL"));
+        }
         return alarmConfigDao.getCount(query);
     }
 
@@ -68,9 +82,12 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
     }
 
     @Override
-    public List<AlarmConfig> queryListByAppName(String appName) {
+    public List<AlarmConfig> queryListByAppName(String appName, String configType) {
         Query query = new Query();
         query.addCriteria(Criteria.where("appName").is(appName));
+        if(configType != null && configType.equals("GLOBAL")){
+            query.addCriteria(Criteria.where("configType").is("GLOBAL"));
+        }
         return alarmConfigDao.queryList(query);
     }
 }
