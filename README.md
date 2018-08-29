@@ -1,5 +1,6 @@
 # woodpecker
-    包含日志收集的server端，和日志相关展现和告警配置的web端。
+    包含日志收集的server端，和日志相关展现和告警配置的web端。报警支持：手机短信、邮件、微信。
+    可以支持在页面上远程控制应用程序实现代码诊断。
    [日志报警的客户端](https://github.com/guoyang1982/woodpecker-client)
    按照链接里的步骤使用客户端后，应用里的log的日志输出就都能收集到，默认是error级别的日志。如：
    ```java
@@ -30,7 +31,7 @@
    #### clone代码
     git clone git@github.com:guoyang1982/docker-redis-cluster.git
    #### build镜像
-    docker-compose -f compose.yml
+    docker-compose -f compose.yml build
    #### 启动镜像
     docker-compose -f compose.yml up -d
    
@@ -52,7 +53,8 @@
     java -jar wp-server-0.0.1-SNAPSHOT.jar
    #### web端启动：
     java -jar wp-webapp-0.0.1-SNAPSHOT.jar
-
-## 7.维护人员
+## 7.微信企业号注册地址：
+    https://work.weixin.qq.com/?from=qyh_redirect
+## 8.维护人员
    * 郭阳
    * 梅俊杰
