@@ -86,12 +86,12 @@ public class ConsumeServerImpl implements ConsumeServer {
         // 获取全局异常
         AlarmConfig globalConfig = alarmConfigDao.queryGlobalAlarmCinfig(exceptionInfo.getAppName());
         // 检测是否需要报警
-        if(globalConfig != null){
+        if (globalConfig != null) {
             // 执行报警
-            if(isAutoAlarm(exceptionInfo,globalConfig)) {
+            if (isAutoAlarm(exceptionInfo, globalConfig)) {
                 configs.add(globalConfig);
             }
-        }else {
+        } else {
             configs = alarmConfigDao.queryList(exceptionInfo.getAppName(), exceptionInfo.getIp(), exceptionInfo.getExceptionType());
         }
         for (AlarmConfig config : configs) {
@@ -132,19 +132,20 @@ public class ConsumeServerImpl implements ConsumeServer {
         msgObject.setMsg(msg);
 
         // 异步线程处理异常信息 记录存储redis
-        threadPoolManageUtil.getThreadPoolByKey("realTimeExceptionStatics").execute(() -> saveRealExceptionInfo(msgObject,redisTemplate));
+        threadPoolManageUtil.getThreadPoolByKey("realTimeExceptionStatics").execute(() -> saveRealExceptionInfo(msgObject, redisTemplate));
         return msgObject;
     }
 
 
     /**
      * 细化当前异常类型
+     *
      * @param exceptionInfo
      * @param globalConfig
      */
     @SuppressWarnings("unchecked")
-    private boolean isAutoAlarm(ExceptionInfo exceptionInfo, AlarmConfig globalConfig){
-        if(exceptionInfo == null || globalConfig == null){
+    private boolean isAutoAlarm(ExceptionInfo exceptionInfo, AlarmConfig globalConfig) {
+        if (exceptionInfo == null || globalConfig == null) {
             return false;
         }
         int[] alarmData = getAlarmData(exceptionInfo);
@@ -155,25 +156,25 @@ public class ConsumeServerImpl implements ConsumeServer {
     }
 
 
-    private int[] getAlarmData(ExceptionInfo exceptionInfo){
-        if(exceptionInfo == null){
+    private int[] getAlarmData(ExceptionInfo exceptionInfo) {
+        if (exceptionInfo == null) {
             return null;
         }
         int[] alarmData = new int[2];
         String appName = exceptionInfo.getAppName();
         String exceptionType = exceptionInfo.getExceptionType();
-        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         int max = 0;
         int compareDay = 4;
-        for(int i = 0; i < compareDay; i++){
-            String now = DateUtil.getStringDateByNum(new Date(),-i);
-            String key = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(" ") + 1)).replace(" ","-");
-            if(i == 0){
+        for (int i = 0; i < compareDay; i++) {
+            String now = DateUtil.getStringDateByNum(new Date(), -i);
+            String key = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(" ") + 1)).replace(" ", "-");
+            if (i == 0) {
                 alarmData[0] = valueOperations.get(key) == null ? 0 : Integer.valueOf(valueOperations.get(key));
-            }else {
+            } else {
                 // 获取前三内当前异常的最大值
                 int temp = valueOperations.get(key) == null ? 0 : Integer.valueOf(valueOperations.get(key));
-                if(max < temp){
+                if (max < temp) {
                     max = temp;
                 }
             }
@@ -183,17 +184,14 @@ public class ConsumeServerImpl implements ConsumeServer {
     }
 
 
-
-
-
     /**
      * 比较两个异常的消息的相似性 采用Jaro距离
      * TODO 后期可以考虑的方案 LDA 词向量
      */
-    private boolean computeTextSimilarity(String source, String target){
+    private boolean computeTextSimilarity(String source, String target) {
         boolean result = false;
         double flag = 0.75;
-        if(StringUtils.getJaroWinklerDistance(source, target) > flag){
+        if (StringUtils.getJaroWinklerDistance(source, target) > flag) {
             result = true;
         }
         return result;
@@ -204,37 +202,36 @@ public class ConsumeServerImpl implements ConsumeServer {
      * 实时记录异常数据
      */
     @SuppressWarnings(value = "unchecked")
-    private void saveRealExceptionInfo(ExceptionInfo exceptionInfo, RedisTemplate redisTemplate){
+    private void saveRealExceptionInfo(ExceptionInfo exceptionInfo, RedisTemplate redisTemplate) {
         SetOperations setOperations = redisTemplate.opsForSet();
         // 按应用存储其异常类型
-        setOperations.add(exceptionInfo.getAppName() + "_exception_set",exceptionInfo.getExceptionType());
-        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
-        String now = DateFormatUtils.format(new Date(),"yyyy-MM-dd HH:mm:ss");
+        setOperations.add(exceptionInfo.getAppName() + "_exception_set", exceptionInfo.getExceptionType());
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        String now = DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss");
         String appName = exceptionInfo.getAppName();
         String exceptionType = exceptionInfo.getExceptionType();
-        String keyPerMinute = appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.lastIndexOf(":")).replace(" ","-");
-        String keyPerHour = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(":"))).replace(" ","-");
-        String keyPerDay = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(" ") + 1)).replace(" ","-");
+        String keyPerMinute = appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.lastIndexOf(":")).replace(" ", "-");
+        String keyPerHour = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(":"))).replace(" ", "-");
+        String keyPerDay = (appName + "_" + exceptionType + "_" + now.substring(now.indexOf("-") + 1, now.indexOf(" ") + 1)).replace(" ", "-");
         // 存储每分钟内的异常数，失效时间20分钟
-        if(valueOperations.get(keyPerMinute) == null){
-            valueOperations.set(keyPerMinute,"1",20,TimeUnit.MINUTES);
-        }else {
-            valueOperations.increment(keyPerMinute,1);
+        if (valueOperations.get(keyPerMinute) == null) {
+            valueOperations.set(keyPerMinute, "1", 20, TimeUnit.MINUTES);
+        } else {
+            valueOperations.increment(keyPerMinute, 1);
         }
         // 存储每小时内的异常数，失效时间24小时
-        if(valueOperations.get(keyPerHour) == null){
-            valueOperations.set(keyPerHour,"1",24,TimeUnit.HOURS);
-        }else {
-            valueOperations.increment(keyPerHour,1);
+        if (valueOperations.get(keyPerHour) == null) {
+            valueOperations.set(keyPerHour, "1", 24, TimeUnit.HOURS);
+        } else {
+            valueOperations.increment(keyPerHour, 1);
         }
         // 存储每天内的异常数，失效时间20天
-        if(valueOperations.get(keyPerDay) == null){
-            valueOperations.set(keyPerDay, "1",20, TimeUnit.DAYS);
-        }else {
+        if (valueOperations.get(keyPerDay) == null) {
+            valueOperations.set(keyPerDay, "1", 20, TimeUnit.DAYS);
+        } else {
             valueOperations.increment(keyPerDay, 1);
         }
     }
-
 
 
     private String getExceptionString(String msg) {
@@ -242,7 +239,7 @@ public class ConsumeServerImpl implements ConsumeServer {
 
         if (msg != null && msg.contains(EXCEPTION)) {
             exceptionName = msg.substring(0, msg.indexOf(EXCEPTION) + EXCEPTION.length());
-            if(exceptionName.lastIndexOf(".")>0){
+            if (exceptionName.lastIndexOf(".") > 0) {
                 exceptionName = exceptionName.substring(exceptionName.lastIndexOf(".") + 1, exceptionName.length());
             }
         }
@@ -254,10 +251,10 @@ public class ConsumeServerImpl implements ConsumeServer {
             return null;
         }
 
-        if(exceptionName.endsWith(":")){
-            exceptionName = exceptionName.replace(":","");
+        if (exceptionName.endsWith(":")) {
+            exceptionName = exceptionName.replace(":", "");
         }
-        if(StringUtils.isBlank(exceptionName)){
+        if (StringUtils.isBlank(exceptionName)) {
             exceptionName = "others";
         }
         return exceptionName;
@@ -283,17 +280,17 @@ public class ConsumeServerImpl implements ConsumeServer {
         }
 
         final String appName = config.getAppName();
-        if(config.getConfigType().equals("GLOBAL")){
+        if (null != config.getConfigType() && config.getConfigType().equals("GLOBAL")) {
             final String ip = exceptionInfo.getIp();
-            String latestAlarmTime = alarmHistoryDao.getLatestAlarmTime(appName,"all",exceptionInfo.getExceptionType());
-            int current = (int)exceptionInfoDao.getExceptionCount(appName,"all",exceptionInfo.getExceptionType(),latestAlarmTime);
-            if(current + 1 >= config.getThreshold()){
+            String latestAlarmTime = alarmHistoryDao.getLatestAlarmTime(appName, "all", exceptionInfo.getExceptionType());
+            int current = (int) exceptionInfoDao.getExceptionCount(appName, "all", exceptionInfo.getExceptionType(), latestAlarmTime);
+            if (current + 1 >= config.getThreshold()) {
                 config.setIp("all");
-                if(!checkAlarmFreq(config)){
-                    threadPoolManageUtil.getThreadPoolByKey("mailSend").execute(() -> doAlarm(appName,ip,exceptionInfo.getIp(),exceptionInfo.getExceptionType(),config,exceptionInfo.getMsg()));
+                if (!checkAlarmFreq(config)) {
+                    threadPoolManageUtil.getThreadPoolByKey("mailSend").execute(() -> doAlarm(appName, ip, exceptionInfo.getIp(), exceptionInfo.getExceptionType(), config, exceptionInfo.getMsg()));
                 }
             }
-        }else {
+        } else {
             final String ip = ALL.equals(config.getIp()) ? ALL : exceptionInfo.getIp();
 
             // 报警中最好不要出现all 这种全部异常输出的（后期在报警配置中需要完善）
@@ -317,11 +314,9 @@ public class ConsumeServerImpl implements ConsumeServer {
     }
 
 
-
-
-
     /**
      * 为ture过滤不发送 为false发送报警
+     *
      * @param config
      * @param exceptionInfo
      * @return
@@ -329,21 +324,20 @@ public class ConsumeServerImpl implements ConsumeServer {
     private boolean isFilter(AlarmConfig config, ExceptionInfo exceptionInfo) {
         //默认发送报警
         boolean isFilter = false;
-        try{
+        try {
             if (null != config.getRuleId()) {
                 isFilter = dealRule(config.getRuleId(), exceptionInfo);
             }
-        }catch (Exception e){
-            log.info("获取规则发生异常!e={}",e);
+        } catch (Exception e) {
+            log.info("获取规则发生异常!e={}", e);
         }
         return isFilter;
     }
 
 
-
-    private boolean dealRule(String ruleId, ExceptionInfo exceptionInfo){
+    private boolean dealRule(String ruleId, ExceptionInfo exceptionInfo) {
         boolean isFilter = false;
-        if(StringUtils.isNotEmpty(ruleId)){
+        if (StringUtils.isNotEmpty(ruleId)) {
             //获取规则配置脚本
             RuleConfig ruleConfig = ruleConfigService.queryRuleConfig(ruleId);
             if (null != ruleConfig) {
@@ -355,11 +349,11 @@ public class ConsumeServerImpl implements ConsumeServer {
                 }
                 if (resObject.toString().equals("true")) {
                     //规则为true不发送报警
-                    log.info("规则为ture不发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
+                    log.info("规则为ture不发送报警,ruleid=" + ruleConfig.get_id() + "::" + exceptionInfo.getMsg());
                     isFilter = true;
                 } else if (resObject.toString().equals("false")) {
                     //规则返回为false发送报警
-                    log.info("规则返回为false发送报警,ruleid="+ruleConfig.get_id()+"::"+exceptionInfo.getMsg());
+                    log.info("规则返回为false发送报警,ruleid=" + ruleConfig.get_id() + "::" + exceptionInfo.getMsg());
                     isFilter = false;
                 }
             }
@@ -413,8 +407,6 @@ public class ConsumeServerImpl implements ConsumeServer {
     }
 
 
-
-
     private String timeForNow() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date now = new Date();
@@ -424,6 +416,7 @@ public class ConsumeServerImpl implements ConsumeServer {
     /**
      * 检测当前异常类型的发送频率
      * 在设置的时间内只能发送一次
+     *
      * @param alarmConfig 告警配置
      * @return 检测结果
      */
@@ -442,7 +435,7 @@ public class ConsumeServerImpl implements ConsumeServer {
             } else {
                 return true;
             }
-        }else {
+        } else {
             return isAlarmed;
         }
     }
