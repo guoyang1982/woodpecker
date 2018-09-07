@@ -2,13 +2,13 @@
  * Created by wangruifeng on 14-5-12.
  */
 define(function(){
-	
-	function ruleconfigNew(options){
-		this.init(options);
-	}
 
+    function ruleconfigNew(options){
+        this.init(options);
+    }
+    var editor;
     ruleconfigNew.prototype = {
-		init: function (options) {
+        init: function (options) {
             this.options = options;
         },
         setOptions: function (options) {
@@ -47,37 +47,45 @@ define(function(){
             $("#div_ruleconfig_edit").empty();
             $("#div_ruleconfig_edit").block({message: "Loading..."});
             $("#div_ruleconfig_edit").load(url + " #form_ruleconfig", params, function (responseText, textStatus, XMLHttpRequest) {
+                editor = CodeMirror.fromTextArea($($("#form_ruleconfig").find("textarea")).get(1),{
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    theme:"darcula",
+                    mode: "text/x-groovy"
+                });
+                editor.setValue($($("#form_ruleconfig").find("textarea")).get(1).value)
                 $("#div_ruleconfig_edit").unblock();
 
             });
         },
         getIpByAppName:function(){
-             $("#ip option").remove() ;
-             var username = this.options.username;
-             var appName = $("#appName").val() ;
-             $.ajax({
-                    url: "/woodpecker/application/getIpByAppName/"+ username+'/' +appName,
-                    type: "GET",
-                    success: function (data) {
-                        if (data.code == "0") {
-                         for(var p in data.data ){
-                                $("#ip").append("<option  value='" + data.data[p] + "'>"+ data.data[p] +"</option>") ;
-                             }
-                         $("#ip").append("<option  value='all'>all</option>");
-                         $("#ip").append("<option  value='each'>each</option>");
-                        } else {
-                            $.gritter.add({title: "提示信息：", text: data.message, time: 2000});
+            $("#ip option").remove() ;
+            var username = this.options.username;
+            var appName = $("#appName").val() ;
+            $.ajax({
+                url: "/woodpecker/application/getIpByAppName/"+ username+'/' +appName,
+                type: "GET",
+                success: function (data) {
+                    if (data.code == "0") {
+                        for(var p in data.data ){
+                            $("#ip").append("<option  value='" + data.data[p] + "'>"+ data.data[p] +"</option>") ;
                         }
+                        $("#ip").append("<option  value='all'>all</option>");
+                        $("#ip").append("<option  value='each'>each</option>");
+                    } else {
+                        $.gritter.add({title: "提示信息：", text: data.message, time: 2000});
                     }
-                });
-       },
+                }
+            });
+        },
 
         getFormData: function () {
             var data = {};
             // 获取表单的值
             $("#form_ruleconfig").find("input[type=hidden],input[type=text],textarea,select").each(function () {
-                 data[this.name] = $(this).val();
+                data[this.name] = $(this).val();
             });
+            data[$($("#form_ruleconfig").find("textarea")).get(1).name]=editor.getValue();
             return data;
         },
         btnSave: function () {
@@ -129,7 +137,7 @@ define(function(){
                 this.options.callback_btnBack();
             }
         }
-	};
-	return ruleconfigNew ;
-	
+    };
+    return ruleconfigNew ;
+
 });

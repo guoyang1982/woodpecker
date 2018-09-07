@@ -6,7 +6,7 @@ define(function () {
     function ruleEdit(options) {
         this.init(options);
     }
-
+    var editor;
     ruleEdit.prototype = {
 
         init: function (options) {
@@ -20,6 +20,7 @@ define(function () {
             $("#content_ruleconfig_edit").show();
             this.initEvents();
             this.loadContent();
+
         },
         initEvents: function () {
             var that = this;
@@ -33,6 +34,7 @@ define(function () {
             $("#div_ruleconfig_edit").off("click.btn_ruleconfig_back").on("click.btn_ruleconfig_back", "#btn_ruleconfig_back", function () {
                 that.btnBack();
             });
+
         },
         loadContent: function () {
             var id = this.options.id;
@@ -45,8 +47,17 @@ define(function () {
             $("#div_ruleconfig_edit").empty();
             $("#div_ruleconfig_edit").block({message: "Loading..."});
             $("#div_ruleconfig_edit").load(url + " #form_ruleconfig", params, function (responseText, textStatus, XMLHttpRequest) {
+                editor = CodeMirror.fromTextArea($($("#form_ruleconfig").find("textarea")).get(1),{
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    theme:"darcula",
+                    mode: "text/x-groovy"
+                });
+                editor.setValue($($("#form_ruleconfig").find("textarea")).get(1).value);
                 $("#div_ruleconfig_edit").unblock();
             });
+
+
         },
         getFormData: function () {
             var data = {};
@@ -54,6 +65,7 @@ define(function () {
             $("#form_ruleconfig").find("input[type=hidden],input[type=text],textarea,select").each(function () {
                 data[this.name] = $(this).val();
             });
+            data[$($("#form_ruleconfig").find("textarea")).get(1).name]=editor.getValue();
             return data;
         },
         btnSave: function () {

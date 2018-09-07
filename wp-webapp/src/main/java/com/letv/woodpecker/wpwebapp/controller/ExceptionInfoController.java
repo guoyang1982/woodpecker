@@ -1,6 +1,7 @@
 package com.letv.woodpecker.wpwebapp.controller;
 
 
+
 import com.letv.woodpecker.wpdatamodel.model.ExceptionInfo;
 import com.letv.woodpecker.wpdatamodel.service.ExceptionService;
 import com.letv.woodpecker.wpwebapp.auth.shiro.AuthUser;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -181,7 +183,6 @@ public class ExceptionInfoController extends BaseController
             vo.setExceptionType(exceptionType);
             vo.setContentMd5(dbObjects.get(i).get("contentMd5").toString());
             String msg = dbObjects.get(i).get("msg").toString();
-            msg = msg.substring(msg.indexOf(" - ")+3);
             vo.setContent(msg);
             vo.setCount(Float.valueOf( dbObjects.get(i).get("count").toString() ).intValue());
             exceptionVos.add(vo);
@@ -376,7 +377,7 @@ public class ExceptionInfoController extends BaseController
             case perDay:
                 count = 20;
                 break;
-                default: count=20;
+            default: count=20;
         }
 
         for(int i = 0; i < count; i++){

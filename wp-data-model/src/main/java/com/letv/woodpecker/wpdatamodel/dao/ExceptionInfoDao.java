@@ -3,7 +3,6 @@ package com.letv.woodpecker.wpdatamodel.dao;
 import com.letv.woodpecker.wpdatamodel.model.ExceptionInfo;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.data.domain.Sort;
@@ -58,13 +57,13 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         Criteria criteria = new Criteria();
         if(!"".equals(startTime)){
             if(!"".equals(endTime)){
-                criteria.andOperator(Criteria.where("logTime").gte(startTime).lt(endTime));
+                criteria.andOperator(Criteria.where("createTime").gte(startTime).lt(endTime));
             }else{
-                criteria.andOperator(Criteria.where("logTime").gte(startTime));
+                criteria.andOperator(Criteria.where("createTime").gte(startTime));
             }
         }else{
             if(!"".equals(endTime)){
-                criteria.andOperator(Criteria.where("logTime").lt(endTime));
+                criteria.andOperator(Criteria.where("createTime").lt(endTime));
             }
         }
         query.addCriteria(criteria);
@@ -88,7 +87,7 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return queryList(query);
     }
 
-    public List<ExceptionInfo> queryAllExceptions(List<String> appNames, String appName, String startTime,String endTime, int pageStart, int pageSize){
+    public List<ExceptionInfo> queryAllExceptions(List<String> appNames, String appName, String startTime, String endTime, int pageStart, int pageSize){
         Query query = new Query();
         if(appName != null && !"".equals(appName)){
             query.addCriteria(Criteria.where("appName").is(appName));
@@ -132,7 +131,7 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         return getCount(query);
     }
 
-    public List<ExceptionInfo> queryPageByDetail(String appName,String exceptionType,String contentMd5,String startTime,String endTime, int pageStart, int pageSize){
+    public List<ExceptionInfo> queryPageByDetail(String appName, String exceptionType, String contentMd5, String startTime, String endTime, int pageStart, int pageSize){
         Query query = new Query();
         query.addCriteria(Criteria.where("appName").is(appName));
         if(StringUtils.isNotBlank(contentMd5)){
@@ -144,18 +143,18 @@ public class ExceptionInfoDao extends MongoDao<ExceptionInfo> {
         Criteria criteria = new Criteria();
         if(!"".equals(startTime)){
             if(!"".equals(endTime)){
-                criteria.andOperator(Criteria.where("logTime").gte(startTime).lt(endTime));
+                criteria.andOperator(Criteria.where("createTime").gte(startTime).lt(endTime));
             }else{
-                criteria.andOperator(Criteria.where("logTime").gte(startTime));
+                criteria.andOperator(Criteria.where("createTime").gte(startTime));
             }
         }else{
             if(!"".equals(endTime)){
-                criteria.andOperator(Criteria.where("logTime").lt(endTime));
+                criteria.andOperator(Criteria.where("createTime").lt(endTime));
             }
         }
         query.addCriteria(criteria);
         query.skip(pageStart).limit(pageSize);
-        query.with(new Sort(new Sort.Order(Sort.Direction.DESC,"logTime")));
+        query.with(new Sort(new Sort.Order(Sort.Direction.DESC,"createTime")));
         return queryList(query);
     }
 
