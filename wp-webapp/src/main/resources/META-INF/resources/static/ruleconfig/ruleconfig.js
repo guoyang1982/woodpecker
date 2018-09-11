@@ -83,6 +83,8 @@ define(["./ruleconfig_new", "./ruleconfig_edit", "../common/confirm"],
                     sAjaxDataProp: 'data',
                     sAjaxSource: "/woodpecker/ruleConfig/queryRuleConfigPage",
                     sServerMethod: "POST",
+                    sScrollY: "60%",
+                    sScrollX: "2000px",
                     aoColumns: [
                         {sTitle: "规则id", mData: "ruleId"},
                         {sTitle: "应用名称", mData: "appName"},

@@ -31,8 +31,6 @@
     <script src="${ctx }/static/js/fold/comment-fold.js"></script>
 
     <link rel="stylesheet" href="${ctx }/static/js/hint/show-hint.css">
-    <script src="${ctx }/static/js/hint/show-hint.js"></script>
-    <script src="${ctx }/static/js/hint/anyword-hint.js"></script>
 
     <!-- END GLOBAL MANDATORY STYLES -->
     <link rel="shortcut icon" href="${ctx }/static/image/favicon.ico"/>
@@ -54,6 +52,8 @@
     <script src="${ctx }/static/js/codemirror.js" type="text/javascript"></script>
     <script src="${ctx }/static/js/matchbrackets.js" type="text/javascript"></script>
     <script src="${ctx }/static/js/groovy.js" type="text/javascript"></script>
+    <script src="${ctx }/static/js/hint/show-hint.js" type="text/javascript"></script>
+    <script src="${ctx }/static/js/hint/anyword-hint.js" type="text/javascript"></script>
     <!-- END CORE PLUGINS -->
     <!-- END JAVASCRIPTS -->
     <sitemesh:head/>

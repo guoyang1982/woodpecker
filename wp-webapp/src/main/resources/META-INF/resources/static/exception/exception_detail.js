@@ -63,7 +63,7 @@ define(["./exception_detail_two","../common/confirm"],
                     bServerSide: true,
                     bSort: false,
                     bFilter: false,
-                    bAutoWidth: false,
+                    bAutoWidth: true,
                     bDestroy: true,
                     bInfo: true,//页脚信息
                     pagingType:   "full_numbers",
