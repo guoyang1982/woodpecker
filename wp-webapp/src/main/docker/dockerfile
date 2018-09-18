@@ -1,8 +1,0 @@
-FROM frolvlad/alpine-oraclejdk8:slim
-VOLUME /tmp
-RUN mkdir  -p /letv/web
-ADD wp-webapp-0.0.1-SNAPSHOT.jar /letv/web/app.jar
-ENV PROFILE=prod
-WORKDIR /letv/web
-ENTRYPOINT ["java","-Duser.timezone=GMT+08","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar","--spring.profiles.active=prod"]
-EXPOSE 8066

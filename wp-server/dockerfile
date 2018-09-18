@@ -1,0 +1,10 @@
+FROM frolvlad/alpine-oraclejdk8:slim
+VOLUME /tmp
+RUN mkdir  -p /letv/web
+ARG JAR_FILE
+ADD target/${JAR_FILE} /letv/web/app.jar
+ENV PROFILE=prod
+WORKDIR /letv/web
+#ENTRYPOINT ["java","-Duser.timezone=GMT+08","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar","--spring.profiles.active=prod"]
+CMD java -Duser.timezone=GMT+08 -Djava.security.egd=file:/dev/./urandom -jar app.jar --spring.profiles.active=$PROFILE
+EXPOSE 8080
