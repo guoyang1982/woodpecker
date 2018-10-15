@@ -43,11 +43,13 @@ public class WebSocketServer {
                         }
                     });
 
-            Channel ch = b.bind(ip, port).sync().channel();
+            //Channel ch = b.bind(ip, port).sync().channel();
+            //修改为了在docker进行websocket链接
+            Channel ch = b.bind(port).sync().channel();
             System.out.println("Web socket server started at port " + port
                     + '.');
             System.out
-                    .println("Open your browser and navigate to http://localhost:"
+                    .println("Open your browser and navigate to http://"+ip+":"
                             + port + '/');
 
             ch.closeFuture().sync();
