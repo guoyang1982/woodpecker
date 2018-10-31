@@ -56,7 +56,7 @@
 ## 7.微信企业号注册地址：
     https://work.weixin.qq.com/?from=qyh_redirect
 ## 8.操作手册：
-   https://github.com/guoyang1982/woodpecker/wiki/%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C
+   * [web端操作手册](https://github.com/guoyang1982/woodpecker/wiki/%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C)
 ## 9.维护人员
    * 郭阳
    * 梅俊杰
