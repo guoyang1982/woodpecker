@@ -135,13 +135,11 @@
 		而应该给终端项目使用，因为这个插件的 repackage 目标会处理 jar 包，导致依赖它的模块无法使用它。
 		在 parent 项目中使用它会导致每个子项目都执行了该目标，进而出现编译失败。
 	-->
-
-
 	<repositories>
 		<repository>
-			<id>letv.public</id>
-			<name>Letv.com Repository</name>
-			<url>http://maven.letv.cn/nexus/content/groups/public/</url>
+			<id>SiteMesh</id>
+			<name>SiteMesh Repository</name>
+			<url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
 
