@@ -1,7 +1,6 @@
 package com.letv.woodpecker.wpwebapp.config;
 
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
-import com.letv.auth.interceptors.SSOInterceptor;
 import com.letv.woodpecker.wpwebapp.auth.interceptor.UserInfoInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
