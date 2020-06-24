@@ -129,5 +129,11 @@
 		</dependency>
 	</dependencies>
 
-
+	<repositories>
+		<repository>
+			<id>SiteMesh</id>
+			<name>SiteMesh Repository</name>
+			<url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
 </project>
