@@ -129,12 +129,6 @@
 		</dependency>
 	</dependencies>
 
-
-	<!--
-		我们不应该给 parent 项目添加 spring-boot-maven-plugin 构建插件，
-		而应该给终端项目使用，因为这个插件的 repackage 目标会处理 jar 包，导致依赖它的模块无法使用它。
-		在 parent 项目中使用它会导致每个子项目都执行了该目标，进而出现编译失败。
-	-->
 	<repositories>
 		<repository>
 			<id>SiteMesh</id>
@@ -142,33 +136,4 @@
 			<url>http://maven-us.nuxeo.org/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-	<!--<pluginRepositories>-->
-		<!--<pluginRepository>-->
-			<!--<id>jboss-public-repository-group</id>-->
-			<!--<name>JBoss Public Repository Group</name>-->
-			<!--<url>http://repository.jboss.org/nexus/content/groups/public/</url>-->
-			<!--<releases>-->
-				<!--<enabled>true</enabled>-->
-			<!--</releases>-->
-			<!--<snapshots>-->
-				<!--<enabled>true</enabled>-->
-			<!--</snapshots>-->
-		<!--</pluginRepository>-->
-	<!--</pluginRepositories>-->
-
-	<!--<distributionManagement>-->
-		<!--<repository>-->
-			<!--<id>project-release</id>-->
-			<!--<name>Projects Release repository</name>-->
-			<!--<url>http://maven.letv.cn/nexus/content/repositories/releases/</url>-->
-		<!--</repository>-->
-		<!--<snapshotRepository>-->
-			<!--<id>project-snapshots</id>-->
-			<!--<name>Projects SnapShot repository</name>-->
-			<!--<url>http://maven.letv.cn/nexus/content/repositories/snapshots/</url>-->
-		<!--</snapshotRepository>-->
-	<!--</distributionManagement>-->
-
-
 </project>
